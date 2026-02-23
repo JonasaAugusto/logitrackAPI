@@ -17,7 +17,7 @@ API de logística desenvolvida em **FastAPI**, com persistência em **PostgreSQL
 
 ```
 logitrackAPI/
-├── app/ # Código principal da aplicação FastAPI
+├── api/ # Código principal da aplicação FastAPI
 ├── tests/ # Testes automatizados
 ├── docker-compose.yml
 ├── pyproject.toml # Configuração do Poetry
@@ -72,3 +72,4 @@ poetry run pytest
 ## 📄 Licença
 
 Este projeto é de uso acadêmico e está sob a licença MIT.
+
