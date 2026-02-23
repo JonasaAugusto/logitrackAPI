@@ -5,6 +5,8 @@ API de logística desenvolvida em **FastAPI**, com persistência em **PostgreSQL
 ---
 
 ## 🚀 Tecnologias
+![Python](https://img.shields.io/badge/python-3.12-blue)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.115-green)
 
 - [FastAPI](https://fastapi.tiangolo.com/) — framework web moderno e rápido
 - [PostgreSQL](https://www.postgresql.org/) — banco de dados relacional
@@ -44,7 +46,7 @@ poetry install
 ### 3. Rodar localmente com Docker Compose
 
 ```bash
-docker-compose up --build
+docker compose up --build
 ```
 
 A API estará disponível em:
@@ -72,4 +74,5 @@ poetry run pytest
 ## 📄 Licença
 
 Este projeto é de uso acadêmico e está sob a licença MIT.
+
 
