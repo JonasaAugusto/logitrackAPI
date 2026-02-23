@@ -1,5 +1,5 @@
 from fastapi.testclient import TestClient
-from logitrackapi.main import app
+from infrastructure.api.main import app
 
 client = TestClient(app)
 

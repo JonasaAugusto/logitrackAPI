@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from logitrackapi.routers import users, tracking
+from infrastructure.api.routers import users, tracking
 
 app = FastAPI()
 
