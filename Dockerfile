@@ -12,4 +12,4 @@ RUN poetry config virtualenvs.create false \
 
 COPY . .
 
-CMD ["uvicorn", "logitrackapi.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "infrastructure.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
