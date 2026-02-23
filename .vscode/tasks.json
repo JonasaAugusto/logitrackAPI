@@ -1,0 +1,27 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Run API",
+      "type": "shell",
+      "command": "poetry run uvicorn logitrackapi.main:app --reload",
+      "group": "build"
+    },
+    {
+      "label": "Run Tests",
+      "type": "shell",
+      "command": "poetry run pytest",
+      "group": "test"
+    },
+    {
+      "label": "Docker Up",
+      "type": "shell",
+      "command": "docker-compose up -d"
+    },
+    {
+      "label": "Docker Down",
+      "type": "shell",
+      "command": "docker-compose down"
+    }
+  ]
+}

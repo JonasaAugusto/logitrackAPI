@@ -1,0 +1,9 @@
+{
+  "python.defaultInterpreterPath": "C:/Users/jonas/AppData/Local/pypoetry/Cache/virtualenvs/logitrackapi-1thGko6E-py3.14/Scripts/python.exe",
+  "python.venvPath": "${workspaceFolder}/.venv",
+  "python.testing.pytestEnabled": true,
+  "python.testing.pytestArgs": [
+    "tests"
+  ],
+  "editor.formatOnSave": true
+}

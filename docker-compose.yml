@@ -1,0 +1,23 @@
+services:
+  api:
+    build: .
+    container_name: logitrackapi
+    command: poetry run uvicorn logitrackapi.main:app --host 0.0.0.0 --port 8000 --reload
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://logitrack:logitrack@db:5432/logitrack
+    depends_on:
+      - db
+
+  db:
+    image: postgres:15
+    container_name: logitrackdb
+    environment:
+      POSTGRES_USER: logitrack
+      POSTGRES_PASSWORD: logitrack
+      POSTGRES_DB: logitrack
+    ports:
+      - "5432:5432"

@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "logitrackapi"
+version = "0.1.0"
+description = "API de logística com FastAPI"
+authors = ["Jonas Augusto <seuemail@example.com>"]
+packages = [{ include = "logitrackapi", from = "src" }]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = "^0.115.0"
+uvicorn = "^0.30.0"
+sqlalchemy = "^2.0.0"
+psycopg2-binary = "^2.9.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^9.0.2"
+black = "^26.1.0"
+isort = "^8.0.0"
+httpx = "^0.28.1"
