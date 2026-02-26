@@ -10,7 +10,6 @@ class User(BaseModel):
     Representa o usuário dentro das regras de negócio do sistema.
     """
 
-    # Configuração para permitir conversão direta de objetos ORM (SQLAlchemy) para Pydantic
     model_config = ConfigDict(from_attributes=True)
 
     id: Optional[int] = Field(default=None, description="ID único do usuário")

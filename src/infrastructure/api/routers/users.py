@@ -18,7 +18,7 @@ async def create_user(user_in: UserCreate):
         id=1,
         username=user_in.username,
         email=user_in.email,
-        password_hash="hashed_secret",  # Simulação de hash
+        password_hash="hashed_secret",
         is_active=True,
     )
 

@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "API de logística com FastAPI"
 authors = ["Jonas Augusto <jonasaugustosantosoliveira@gmail.com>"]
 packages = [
-    { include = "api" }
+    { include = "infrastructure", from = "src" }
 ]
 
 [tool.poetry.dependencies]
@@ -16,6 +16,7 @@ psycopg = {extras = ["binary"], version = "^3.3.3"}
 redis = "^7.2.0"
 pydantic-settings = "^2.13.1"
 email-validator = "^2.1.0"
+fastapi-swagger-dark = "^0.0.9"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^9.0.2"
@@ -25,10 +26,27 @@ httpx = "^0.28.1"
 ruff = "^0.15.2"
 mypy = "^1.19.1"
 pre-commit = "^4.5.1"
+pytest-cov = "^7.0.0"
 
 [tool.pytest.ini_options]
-pythonpath = "."
+pythonpath = ["src"]
 testpaths = ["tests"]
+
+[tool.coverage.run]
+source = ["src"]
+omit = [
+    "*/__init__.py",
+    "*/__pycache__/*",
+    "*/.venv/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+]
 
 [tool.ruff]
 line-length = 120
