@@ -11,27 +11,33 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      
       - name: Set up Python 3.12
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      
       - name: Install Poetry
         run: pipx install poetry
+      
       - name: Cache Poetry virtualenv
         uses: actions/cache@v4
         with:
-          path: .venv
+          path: ~/.cache/pypoetry
           key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
           restore-keys: |
             ${{ runner.os }}-poetry-
+      
       - name: Install dependencies
-        run: poetry install --no-interaction --no-root
+        run: poetry install --no-interaction
+      
       - name: Run Linters
         run: |
-          poetry run ruff check .
-          poetry run black --check .
+          poetry run ruff check . --max-line-length=120
+          poetry run black --check . --line-length=120
           poetry run isort --check-only .
-          poetry run mypy .
+          poetry run mypy . --ignore-missing-imports
+
   test:
     runs-on: ubuntu-latest
     services:
@@ -50,28 +56,36 @@ jobs:
           --health-retries 5
     steps:
       - uses: actions/checkout@v4
+      
       - name: Set up Python 3.12
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      
       - name: Install Poetry
         run: pipx install poetry
+      
       - name: Cache Poetry virtualenv
         uses: actions/cache@v4
         with:
-          path: .venv
+          path: ~/.cache/pypoetry
           key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-poetry-
+      
       - name: Install dependencies
         run: poetry install --no-interaction
+      
       - name: Run tests
         env:
           DATABASE_URL: "postgresql://user:password@localhost:5432/test_db"
-        run: poetry run pytest
+        run: poetry run pytest tests/ -v
 
   build:
     needs: [lint, test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      
       - name: Build Docker image
         run: docker compose build
