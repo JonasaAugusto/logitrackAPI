@@ -2,16 +2,10 @@
 name = "logitrackapi"
 version = "0.1.0"
 description = "API de logística com FastAPI"
-authors = ["Jonas Augusto <seuemail@example.com>"]
+authors = ["Jonas Augusto <jonasaugustosantosoliveira@gmail.com>"]
 packages = [
-    { include = "core", from = "src" },
-    { include = "infrastructure", from = "src" },
-    { include = "application", from = "src" },
-    { include = "shared", from = "src" }
+    { include = "api" }
 ]
-
-
-
 
 [tool.poetry.dependencies]
 python = "^3.12"
@@ -30,6 +24,25 @@ isort = "^8.0.0"
 httpx = "^0.28.1"
 ruff = "^0.15.2"
 mypy = "^1.19.1"
+pre-commit = "^4.5.1"
 
 [tool.pytest.ini_options]
-pythonpath = "src"
+pythonpath = "."
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.black]
+line-length = 120
+target-version = ["py312"]
+
+[tool.isort]
+profile = "black"
+line_length = 120
+
+[tool.mypy]
+python_version = "3.12"
+ignore_missing_imports = true
+disallow_untyped_defs = false

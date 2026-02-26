@@ -1,12 +1,12 @@
 from fastapi import Depends, FastAPI
+from redis.asyncio import Redis
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
-from redis.asyncio import Redis
 
-from infrastructure.api.routers import users, tracking
+from infrastructure.api.routers import tracking, users
 from infrastructure.cache import get_redis
-from infrastructure.database import get_db
 from infrastructure.config.settings import settings
+from infrastructure.database import get_db
 
 app = FastAPI(title=settings.PROJECT_NAME)
 

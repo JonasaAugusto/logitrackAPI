@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, status
 
 from application.dtos.user_dto import UserCreate, UserResponse
 from core.entities.user import User

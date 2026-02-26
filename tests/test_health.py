@@ -1,10 +1,11 @@
-import pytest
 from unittest.mock import AsyncMock
-from httpx import AsyncClient, ASGITransport
+
+import pytest
+from httpx import ASGITransport, AsyncClient
 
 from infrastructure.api.main import app
-from infrastructure.database import get_db
 from infrastructure.cache import get_redis
+from infrastructure.database import get_db
 
 
 @pytest.mark.asyncio

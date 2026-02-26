@@ -9,6 +9,7 @@ class User(BaseModel):
     Entidade de Domínio: Usuário.
     Representa o usuário dentro das regras de negócio do sistema.
     """
+
     # Configuração para permitir conversão direta de objetos ORM (SQLAlchemy) para Pydantic
     model_config = ConfigDict(from_attributes=True)
 

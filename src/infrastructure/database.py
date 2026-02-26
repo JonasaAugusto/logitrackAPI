@@ -1,4 +1,3 @@
-
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.orm import declarative_base
 
@@ -14,6 +13,7 @@ SessionLocal = async_sessionmaker(
 )
 
 Base = declarative_base()
+
 
 async def get_db():
     async with SessionLocal() as session:
