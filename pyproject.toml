@@ -17,11 +17,19 @@ packages = [
 python = "^3.12"
 fastapi = "^0.115.0"
 uvicorn = "^0.30.0"
-sqlalchemy = "^2.0.0"
-psycopg2-binary = "^2.9.0"
+sqlalchemy = {extras = ["asyncio"], version = "^2.0.47"}
+psycopg = {extras = ["binary"], version = "^3.3.3"}
+redis = "^7.2.0"
+pydantic-settings = "^2.13.1"
+email-validator = "^2.1.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^9.0.2"
 black = "^26.1.0"
 isort = "^8.0.0"
 httpx = "^0.28.1"
+ruff = "^0.15.2"
+mypy = "^1.19.1"
+
+[tool.pytest.ini_options]
+pythonpath = "src"

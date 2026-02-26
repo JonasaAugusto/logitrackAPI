@@ -1,23 +1,48 @@
 services:
   api:
     build: .
-    container_name: logitrackapi
-    command: poetry run uvicorn infrastructure.api.main:app --host 0.0.0.0 --port 8000 --reload
-    volumes:
-      - .:/app
     ports:
       - "8001:8000"
-    environment:
-      - DATABASE_URL=postgresql://logitrack:logitrack@db:5432/logitrack
+    volumes:
+      - ./src:/app/src
+    env_file:
+      - .env
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
   db:
     image: postgres:15
-    container_name: logitrackdb
+    restart: always
     environment:
-      POSTGRES_USER: logitrack
-      POSTGRES_PASSWORD: logitrack
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
       POSTGRES_DB: logitrack
     ports:
       - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U user -d logitrack" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+  redis_data:

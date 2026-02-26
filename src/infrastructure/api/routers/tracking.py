@@ -1,7 +1,8 @@
 from fastapi import APIRouter
 
-router = APIRouter(prefix="/tracking", tags=["tracking"])
+router = APIRouter(prefix="/tracking", tags=["Tracking"])
+
 
 @router.get("/")
-def list_tracking():
-    return [{"id": 1, "status": "in transit"}, {"id": 2, "status": "delivered"}]
+async def get_tracking():
+    return {"message": "Tracking endpoint placeholder"}
