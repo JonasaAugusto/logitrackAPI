@@ -1,153 +1,286 @@
 # LogitrackAPI
 
-API de logística desenvolvida em **FastAPI**, com persistência em **PostgreSQL**, cache em **Redis** e infraestrutura containerizada via **Docker Compose**. Este projeto faz parte de um estudo acadêmico e segue boas práticas de arquitetura limpa, validação de dados e integração contínua (CI/CD).
+API de logística desenvolvida com FastAPI, PostgreSQL e Redis.
 
----
+## 🚀 Features
 
-## 🚀 Status do Projeto (Dia 3)
+- ✅ Autenticação de usuários com hash de senha (bcrypt)
+- ✅ Banco de dados PostgreSQL com SQLAlchemy Async
+- ✅ Migrations versionadas com Alembic
+- ✅ Cache com Redis
+- ✅ Docker Compose para desenvolvimento
+- ✅ Arquitetura limpa (Clean Architecture)
+- ✅ Validação de dados com Pydantic
+- ✅ Documentação automática (Swagger/OpenAPI)
 
-- [x] **CI/CD:** Pipeline configurado com Lint, Testes e Build (GitHub Actions).
-- [x] **Docker:** API, PostgreSQL e Redis integrados e operacionais.
-- [x] **Core:** Entidade `User` criada com validação Pydantic e DTOs separados.
-- [x] **Rotas:** Router de usuários implementado com Type Hints.
-- [x] **Health Check:** Monitoramento de conexão com DB e Redis.
+## 📋 Pré-requisitos
 
----
+- Docker e Docker Compose
+- Python 3.12+ (para desenvolvimento local)
+- Poetry (gerenciamento de dependências)
 
-## 🛠 Tecnologias
+## 🛠️ Instalação
 
-![Python](https://img.shields.io/badge/python-3.12-blue)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.115-green)
-![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-CI/CD-black?logo=github-actions)
-![Redis](https://img.shields.io/badge/Redis-DC382D?logo=redis)
-![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker)
-
-- [FastAPI](https://fastapi.tiangolo.com/) — framework web moderno e rápido
-- [PostgreSQL](https://www.postgresql.org/) — banco de dados relacional
-- [Redis](https://redis.io/) — cache e gerenciamento de estado
-- [Docker](https://www.docker.com/) + [Docker Compose](https://docs.docker.com/compose/) — containers e orquestração
-- [Poetry](https://python-poetry.org/) — gerenciamento de dependências
-- [GitHub Actions](https://github.com/features/actions) — automação de CI/CD
-
----
-
-## 📂 Estrutura do Projeto
-
-```plaintext
-logitrackAPI/
-├── .github/
-│   └── workflows/
-│       └── ci.yml          # Pipeline de CI/CD
-├── src/
-│   ├── infrastructure/     # Implementação de DB, API, Routers
-│   ├── core/               # Entidades de Domínio
-│   └── application/        # Casos de uso e DTOs
-├── tests/                  # Testes automatizados
-├── docker-compose.yml      # Orquestração (API + Postgres + Redis)
-├── pyproject.toml          # Configuração do Poetry
-└── README.md
-```
-
-
----
-
-## ⚙️ Instalação e Execução
-
-### 1. Clonar o repositório
+### Clone o repositório
 
 ```bash
-git clone git@github.com:JonasaAugusto/logitrackAPI.git
-cd logitrackAPI
+git clone https://github.com/seu-usuario/logitrackapi.git
+cd logitrackapi
 ```
 
-### 2. Rodar com Docker Compose (Recomendado)
-Este comando sobe a API, o banco de dados PostgreSQL e o Redis simultaneamente
-
-```bash
-docker compose up --build
-```
-
-
-A API estará disponível em:
-👉 http://localhost:8001
-👉 Swagger Docs: `http://localhost:8001/docs`
-
-### 3. Desenvolvimento Local (Opcional)
-Se preferir rodar sem Docker para desenvolvimento:
+### Instale as dependências
 
 ```bash
 poetry install
-poetry run uvicorn infrastructure.api.main:app --reload
 ```
 
-## 🧪 Testes
-Para rodar a suíte de testes automatizados:
+## 🔧 Variáveis de Ambiente
+
+Crie um arquivo `.env` na raiz do projeto:
+
+```env
+# Nome do projeto
+PROJECT_NAME=LogitrackAPI
+
+# Database
+DATABASE_URL=postgresql+asyncpg://user:password@db:5432/logitrack
+
+# Redis
+REDIS_URL=redis://redis:6379/0
+
+# Segurança
+SECRET_KEY=sua-chave-secreta-aqui
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+```
+
+## 🐳 Docker Compose
+
+### Subir os containers
 
 ```bash
-poetry run pytest
+docker compose up -d
 ```
 
-## 📚 Documentação da API (Endpoints Principais)
-A documentação interativa está disponível em `/docs`. Abaixo, exemplos de requisições e respostas testadas.
+### Verificar logs
 
-### 1. 🏠 Root & Health Check
-Verifica se o servidor e as conexões (DB/Redis) estão saudáveis.
+```bash
+docker compose logs -f
+```
 
-**GET** `/`
-```json
+### Parar os containers
+
+```bash
+docker compose down
+```
+
+### Parar e remover volumes
+
+```bash
+docker compose down -v
+```
+
+## 🗄️ Migrations (Alembic)
+
+Este projeto usa Alembic para versionamento do schema do banco de dados.
+
+### Criar nova migration
+
+```bash
+docker compose run --rm api alembic revision --autogenerate -m "descrição da mudança"
+```
+
+### Aplicar migrations
+
+```bash
+docker compose run --rm api alembic upgrade head
+```
+
+### Verificar status atual
+
+```bash
+docker compose run --rm api alembic current
+```
+
+### Rollback (última migration)
+
+```bash
+docker compose run --rm api alembic downgrade -1
+```
+
+### Histórico de migrations
+
+```bash
+docker compose run --rm api alembic history
+```
+
+### Rollback para versão específica
+
+```bash
+docker compose run --rm api alembic downgrade <version_id>
+```
+
+## 🚀 Executando o Projeto
+
+### Desenvolvimento local
+
+```bash
+# Ativar ambiente virtual
+poetry shell
+
+# Rodar a aplicação
+uvicorn src.infrastructure.api.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+### Docker
+
+```bash
+docker compose up -d
+```
+
+A API estará disponível em: `http://localhost:8001`
+
+## 📚 Documentação da API
+
+Após iniciar a aplicação, acesse:
+
+- **Swagger UI**: http://localhost:8001/docs
+- **ReDoc**: http://localhost:8001/redoc
+- **OpenAPI JSON**: http://localhost:8001/openapi.json
+
+## 🧪 Testes
+
+### Rodar todos os testes
+
+```bash
+docker compose run --rm api pytest
+```
+
+### Rodar testes com coverage
+
+```bash
+docker compose run --rm api pytest --cov=src --cov-report=html
+```
+
+### Rodar testes específicos
+
+```bash
+docker compose run --rm api pytest tests/test_health.py -v
+```
+
+## 📁 Estrutura do Projeto
+
+```
+logitrackapi/
+├── alembic/                     # Migrations do banco de dados
+│   ├── versions/               # Versões das migrations
+│   └── env.py
+├── src/
+│   ├── application/            # Camada de aplicação
+│   │   ├── dtos/              # Data Transfer Objects
+│   │   ├── schemas/           # Schemas Pydantic
+│   │   └── use_cases/         # Casos de uso
+│   ├── core/                   # Entidades e regras de negócio
+│   │   ├── entities/          # Entidades de domínio
+│   │   ├── exceptions/        # Exceções customizadas
+│   │   └── repositories/      # Interfaces de repositório
+│   ├── infrastructure/         # Camada de infraestrutura
+│   │   ├── api/               # Endpoints e routers
+│   │   │   └── routers/
+│   │   ├── config/            # Configurações
+│   │   ├── external/          # Serviços externos
+│   │   └── persistence/       # Persistência de dados
+│   │       ├── database/
+│   │       └── models/
+│   └── shared/                 # Utilitários compartilhados
+├── tests/                      # Testes automatizados
+│   ├── unit/
+│   └── integration/
+├── docker-compose.yml
+├── Dockerfile
+├── pyproject.toml
+└── README.md
+```
+
+## 🔐 Autenticação
+
+### Criar usuário
+
+```bash
+POST http://localhost:8001/users/
+Content-Type: application/json
+
 {
-  "message": "Server is running!"
+  "username": "seu_usuario",
+  "email": "seu@email.com",
+  "password": "sua_senha"
 }
 ```
 
-**GET** `/health`
-```json
+### Login (em implementação)
+
+```bash
+POST http://localhost:8001/auth/login
+Content-Type: application/json
+
 {
-  "status": "ok",
-  "database": "connected",
-  "redis": "connected"
+  "username": "seu_usuario",
+  "password": "sua_senha"
 }
 ```
 
-### 2. 👥 Usuários
-**POST** `/users/` (Criar Usuário)
+## 📦 Dependências Principais
 
-*Request:*
-```json
-{
-  "username": "jonas_dev",
-  "email": "jonas@example.com",
-  "password": "senha123"
-}
+- **FastAPI** ^0.115.0 - Framework web
+- **SQLAlchemy** ^2.0.47 - ORM com suporte async
+- **Alembic** ^1.18.4 - Migrations
+- **Pydantic** - Validação de dados
+- **Pydantic Settings** ^2.13.1 - Gerenciamento de configurações
+- **Passlib[bcrypt]** ^1.7.4 - Hash de senhas
+- **Redis** ^7.2.0 - Cache
+- **Uvicorn** ^0.30.0 - Servidor ASGI
+- **Email Validator** ^2.1.0 - Validação de email
+
+## 🛠️ Desenvolvimento
+
+### Code Style
+
+```bash
+# Formatar código
+poetry run black src tests
+
+# Ordenar imports
+poetry run isort src tests
+
+# Linting
+poetry run ruff check src tests
+
+# Type checking
+poetry run mypy src
 ```
 
-*Response (201 Created):*
-```json
-{
-  "id": 1,
-  "username": "jonas_dev",
-  "email": "jonas@example.com",
-  "is_active": true,
-  "created_at": "2026-02-25T23:22:05.522726"
-}
+### Pre-commit
+
+```bash
+# Instalar hooks
+pre-commit install
+
+# Rodar manualmente
+pre-commit run --all-files
 ```
 
-### 3. 📦 Tracking (Placeholder)
-**GET** `/tracking/`
+## 📝 License
 
-*Response:*
-```json
-{
-  "message": "Tracking endpoint placeholder"
-}
-```
+Este projeto está licenciado sob a licença MIT - veja o arquivo [LICENSE](LICENSE) para detalhes.
 
-## 📌 Próximos Passos
-- [ ] Implementar Autenticação e Autorização (JWT OAuth2).
-- [ ] Desenvolver CRUD completo de Entregas e Tracking.
-- [ ] Integrar testes de integração no pipeline CI/CD.
-- [ ] Criar frontend simples para consumo da API.
+## 👥 Contribuição
 
-## 📄 Licença
-Este projeto é de uso acadêmico e está sob a licença MIT.
-```
+1. Faça um fork do projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
+5. Abra um Pull Request
+
+## 📞 Suporte
+
+Para dúvidas e suporte, abra uma issue no repositório ou entre em contato com a equipe de desenvolvimento.

@@ -5,8 +5,13 @@ services:
       - "8001:8000"
     volumes:
       - ./src:/app/src
+      - ./.env:/app/.env
+      - ./alembic.ini:/app/alembic.ini
+      - ./alembic:/app/alembic 
     env_file:
       - .env
+    environment:
+      - PYTHONPATH=/app/src 
     depends_on:
       db:
         condition: service_healthy

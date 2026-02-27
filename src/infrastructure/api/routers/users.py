@@ -1,25 +1,48 @@
-from fastapi import APIRouter, status
+from fastapi import APIRouter, Depends, HTTPException, status
+from passlib.context import CryptContext
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from application.dtos.user_dto import UserCreate, UserResponse
-from core.entities.user import User
+from src.application.dtos.user_dto import UserCreate, UserResponse
+from src.infrastructure.persistence.database.connection import get_db
+from src.infrastructure.persistence.models.user import User
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    return pwd_context.verify(plain_password, hashed_password)
+
+
+def hash_password(password: str) -> str:
+    password_bytes = password.encode("utf-8")[:72]
+    return pwd_context.hash(password_bytes.decode("utf-8", errors="ignore"))
+
 
 @router.post("/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
-async def create_user(user_in: UserCreate):
-    """
-    Cria um novo usuário.
-    Utiliza UserCreate (DTO) para validação de entrada e
-    UserResponse (DTO) para formatar a saída.
-    """
+async def create_user(user_in: UserCreate, db: AsyncSession = Depends(get_db)):
+
+    result = await db.execute(select(User).where(User.email == user_in.email))
+    existing_user = result.scalar_one_or_none()
+
+    if existing_user:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email já registrado")
+
+    result = await db.execute(select(User).where(User.username == user_in.username))
+    if result.scalar_one_or_none():
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Username já registrado")
 
     new_user = User(
-        id=1,
         username=user_in.username,
         email=user_in.email,
-        password_hash="hashed_secret",
+        password_hash=hash_password(user_in.password),  # 🔐 Senha truncada + hasheada
         is_active=True,
     )
+
+    db.add(new_user)
+    await db.commit()
+    await db.refresh(new_user)
 
     return new_user

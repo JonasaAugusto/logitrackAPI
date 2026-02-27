@@ -1,19 +1,11 @@
-# Byte-compiled / optimized / DLL files
+# ============================================
+# PYTHON
+# ============================================
 __pycache__/
 *.py[cod]
 *$py.class
-
-# Poetry
-.poetry/
-
-# Virtual environments
-.venv/
-venv/
-ENV/
-env/
-env.bak/
-
-# Distribution / packaging
+*.so
+.Python
 build/
 develop-eggs/
 dist/
@@ -28,39 +20,119 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
 
-# Logs
-*.log
-*.out
-*.err
+# ============================================
+# POETRY
+# ============================================
+.poetry/
+poetry.lock
 
-# Unit test / coverage reports
+# ============================================
+# VIRTUAL ENVIRONMENTS
+# ============================================
+.venv/
+venv/
+ENV/
+env/
+env.bak/
+envrc
+
+# ============================================
+# IDEs AND EDITORS
+# ============================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+.settings/
+
+# ============================================
+# TESTING AND COVERAGE
+# ============================================
 .coverage
 coverage.xml
 htmlcov/
 .tox/
 .nox/
 .pytest_cache/
+.hypothesis/
 
-# IDEs and editors
-.vscode/
-.idea/
-*.swp
-*.swo
+# ============================================
+# TYPE CHECKING
+# ============================================
+.mypy_cache/
+.ruff_cache/
 
-# Docker
+# ============================================
+# LOGS
+# ============================================
+*.log
+*.out
+*.err
+logs/
+
+# ============================================
+# ENVIRONMENT VARIABLES (CRÍTICO!)
+# ============================================
+.env
+.env.*
+!.env.example
+.env.local
+.env.*.local
+
+# ============================================
+# DOCKER
+# ============================================
 *.pid
 *.seed
 *.pid.lock
+docker-compose.override.yml
 
-# Database
+# ============================================
+# DATABASE
+# ============================================
 *.db
 *.sqlite3
+*.sqlite
+postgres_data/
+redis_data/
 
-# System files
+# ============================================
+# SYSTEM FILES
+# ============================================
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
+desktop.ini
 
-# Local configs
-.env
-.env.*
+# ============================================
+# GIT
+# ============================================
+.git/
+.gitignore
+.gitattributes
+
+# ============================================
+# DOCUMENTATION
+# ============================================
+docs/_build/
+site/
+
+# ============================================
+# MISCELLANEOUS
+# ============================================
+*.bak
+*.tmp
+*.temp
+.cache/
+
+/__init__.py
+/__pycache__/

@@ -17,6 +17,11 @@ redis = "^7.2.0"
 pydantic-settings = "^2.13.1"
 email-validator = "^2.1.0"
 fastapi-swagger-dark = "^0.0.9"
+alembic = "^1.18.4"
+python-dotenv = "^1.2.1"
+passlib = {extras = ["bcrypt"], version = "^1.7.4"}
+bcrypt = "4.0.1"
+
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^9.0.2"

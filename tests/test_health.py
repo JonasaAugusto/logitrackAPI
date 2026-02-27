@@ -5,7 +5,7 @@ from httpx import ASGITransport, AsyncClient
 
 from infrastructure.api.main import app
 from infrastructure.cache import get_redis
-from infrastructure.database import get_db
+from infrastructure.persistence.database.connection import get_db
 
 
 @pytest.mark.asyncio
