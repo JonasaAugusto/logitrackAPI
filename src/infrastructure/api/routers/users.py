@@ -3,7 +3,10 @@ from passlib.context import CryptContext
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.application.dtos.user_dto import UserCreate, UserResponse
+from src.application.dtos.user_dto import (  # UserUpdateDTO,; UserListItemDTO
+    UserCreateDTO,
+    UserResponseDTO,
+)
 from src.infrastructure.persistence.database.connection import get_db
 from src.infrastructure.persistence.models.user import User
 
@@ -18,11 +21,11 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 def hash_password(password: str) -> str:
     password_bytes = password.encode("utf-8")[:72]
-    return pwd_context.hash(password_bytes.decode("utf-8", errors="ignore"))
+    return pwd_context.hash(password_bytes)
 
 
-@router.post("/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
-async def create_user(user_in: UserCreate, db: AsyncSession = Depends(get_db)):
+@router.post("/", response_model=UserResponseDTO, status_code=status.HTTP_201_CREATED)
+async def create_user(user_in: UserCreateDTO, db: AsyncSession = Depends(get_db)):
 
     result = await db.execute(select(User).where(User.email == user_in.email))
     existing_user = result.scalar_one_or_none()
@@ -37,7 +40,7 @@ async def create_user(user_in: UserCreate, db: AsyncSession = Depends(get_db)):
     new_user = User(
         username=user_in.username,
         email=user_in.email,
-        password_hash=hash_password(user_in.password),  # 🔐 Senha truncada + hasheada
+        password_hash=hash_password(user_in.password),
         is_active=True,
     )
 

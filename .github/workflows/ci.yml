@@ -61,7 +61,11 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      
+
+      - name: Run tests
+        run: |
+          poetry run pytest --cov=src --cov-fail-under=70
+          
       - name: Install Poetry
         run: pipx install poetry
       
@@ -75,7 +79,6 @@ jobs:
       
       - name: Install dependencies
         run: poetry install --no-interaction
-      
       - name: Run tests
         env:
           DATABASE_URL: "postgresql://user:password@localhost:5432/test_db"
