@@ -5,10 +5,6 @@ from src.infrastructure.persistence.database.connection import Base
 
 
 class User(Base):
-    """
-    SQLAlchemy Model: Mapeamento da tabela 'users' no PostgreSQL.
-    Apenas para persistência. Não use para validação de API.
-    """
 
     __tablename__ = "users"
 

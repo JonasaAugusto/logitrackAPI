@@ -21,6 +21,9 @@ alembic = "^1.18.4"
 python-dotenv = "^1.2.1"
 passlib = {extras = ["bcrypt"], version = "^1.7.4"}
 bcrypt = "4.0.1"
+pyjwt = "^2.11.0"
+python-jose = {extras = ["cryptography"], version = "^3.5.0"}
+python-multipart = "^0.0.22"
 
 
 [tool.poetry.group.dev.dependencies]
