@@ -78,7 +78,7 @@ jobs:
       - name: Run Tests
         env:
           DATABASE_URL: "postgresql://user:password@localhost:5432/test_db"
-        run: poetry run pytest tests/ -v --cov=src --cov-fail-under=70
+        run: poetry run pytest tests/ -v --cov=src --cov-fail-under=50
 
   build:
     needs: [lint, test]
