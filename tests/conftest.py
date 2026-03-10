@@ -1,4 +1,3 @@
-# conftest.py
 import asyncio
 import sys
 import warnings
@@ -22,11 +21,13 @@ if sys.platform == "win32":
 
 
 async def mocked_get_current_user():
+    """Mock de autenticação para testes"""
     return {"id": 1, "email": "test@logitrack.com"}
 
 
 @pytest.fixture(scope="function")
 async def client():
+    """Cliente HTTP para testes de integração"""
     app.dependency_overrides[get_current_user] = mocked_get_current_user
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as ac:
@@ -36,7 +37,7 @@ async def client():
 
 @pytest.fixture
 def mock_user_factory():
-    """Factory para criar usuários mockados com TODOS os campos exigidos pelo schema"""
+    """Factory para criar usuários mockados com todos os campos"""
 
     def _create_user(
         user_id: int = 1,
@@ -60,9 +61,8 @@ def mock_user_factory():
 
 @pytest.fixture
 def mock_db_session(mock_user_factory):
-    """Mock de sessão SQLAlchemy com retorno configurável"""
+    """Mock de sessão SQLAlchemy"""
     mock_session = AsyncMock(spec=AsyncSession)
-
     mock_session._scalar_return_value = None
 
     def mock_execute_side_effect(query, *args, **kwargs):
@@ -81,7 +81,7 @@ def mock_db_session(mock_user_factory):
 
 @pytest.fixture(autouse=True)
 def override_database_dependencies(mock_db_session):
-    """Substitui get_db e get_redis por mocks"""
+    """Substitui get_db e get_redis por mocks em TODOS os testes"""
 
     async def mock_get_db():
         yield mock_db_session
