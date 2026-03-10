@@ -3,6 +3,8 @@ import os
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "LogitrackAPI"

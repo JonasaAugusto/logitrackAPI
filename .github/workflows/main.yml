@@ -1,0 +1,58 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    env:
+      DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/logitrack
+      REDIS_URL: redis://localhost:6379/0
+      PROJECT_NAME: LogitrackAPI
+      EXTERNAL_API_KEY: '${{ secrets.EXTERNAL_API_KEY }}'
+      EXTERNAL_API_HOST: correios-rastreamento-de-encomendas.p.rapidapi.com
+      EXTERNAL_API_BASE_URL: https://correios-rastreamento-de-encomendas.p.rapidapi.com
+      JWT_SECRET_KEY: '${{ secrets.JWT_SECRET_KEY }}'
+
+    services:
+      redis:
+        image: redis
+        ports:
+          - 6379:6379
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: logitrack
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          
+      - name: Install dependencies
+        run: poetry install
+
+      - name: Run tests
+        run: poetry run pytest tests/ -v --cov=src --cov-fail-under=50
