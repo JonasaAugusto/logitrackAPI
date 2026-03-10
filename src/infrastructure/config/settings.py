@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "LogitrackAPI"
 
     DATABASE_URL: str = ""
-    REDIS_URL: str = ""
+    REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 
     EXTERNAL_API_KEY: str | None = None
     EXTERNAL_API_HOST: str | None = None
