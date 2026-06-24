@@ -1,5 +1,5 @@
 import os
-from typing import Optional
+from typing import List, Optional
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     EXTERNAL_API_HOST: Optional[str] = None
     EXTERNAL_API_BASE_URL: Optional[str] = None
     JWT_SECRET_KEY: str = "test-secret-key-for-unit-tests"
+    ALLOWED_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:5173"]
 
     model_config = SettingsConfigDict(
         env_file=".env",

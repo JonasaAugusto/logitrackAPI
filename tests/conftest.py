@@ -8,9 +8,10 @@ import pytest
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.infrastructure.api.dependencies import get_current_user
 from src.infrastructure.api.main import app
 from src.infrastructure.cache import get_redis
+from src.infrastructure.config.auth import get_current_user
+from src.infrastructure.config.auth_models import TokenData
 from src.infrastructure.persistence.database.connection import get_db
 from src.infrastructure.persistence.models.user import User
 
@@ -21,8 +22,7 @@ if sys.platform == "win32":
 
 
 async def mocked_get_current_user():
-    """Mock de autenticação para testes"""
-    return {"id": 1, "email": "test@logitrack.com"}
+    return TokenData(username="testuser")
 
 
 @pytest.fixture(scope="function")

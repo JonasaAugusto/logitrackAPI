@@ -11,6 +11,10 @@ from alembic import context
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
+import src.infrastructure.persistence.models.delivery  # noqa: F401
+import src.infrastructure.persistence.models.tracking_event  # noqa: F401
+import src.infrastructure.persistence.models.user  # noqa: F401
+import src.infrastructure.persistence.models.vehicle  # noqa: F401
 from src.infrastructure.config.settings import settings
 from src.infrastructure.persistence.database.connection import Base
 

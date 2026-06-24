@@ -1,54 +1,90 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from sqlalchemy import select
+from fastapi import APIRouter, Body, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordRequestForm
+from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.application.dtos.user_dto import UserCreateDTO, UserResponseDTO
-from src.infrastructure.api.routers.users import pwd_context
-from src.infrastructure.config.auth import Token, create_access_token
+from src.application.use_cases.authenticate_user import AuthenticateUserUseCase
+from src.application.use_cases.create_user import CreateUserUseCase
+from src.core.exceptions.user_exceptions import InvalidCredentialsError, UserAlreadyExistsError
+from src.infrastructure.cache import get_redis
+from src.infrastructure.config.auth import (
+    REFRESH_TOKEN_EXPIRE_DAYS,
+    Token,
+    create_access_token,
+    decode_refresh_token,
+)
 from src.infrastructure.persistence.database.connection import get_db
-from src.infrastructure.persistence.models.user import User
+from src.infrastructure.persistence.repositories.user_repository_impl import UserRepositoryImpl
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
 
 @router.post("/register", response_model=UserResponseDTO, status_code=status.HTTP_201_CREATED)
 async def register(user_in: UserCreateDTO, db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(User).where(User.email == user_in.email))
-    if result.scalar_one_or_none():
-        raise HTTPException(status_code=400, detail="Email já registrado")
-
-    result = await db.execute(select(User).where(User.username == user_in.username))
-    if result.scalar_one_or_none():
-        raise HTTPException(status_code=400, detail="Username já registrado")
-
-    new_user = User(
-        username=user_in.username,
-        email=user_in.email,
-        password_hash=pwd_context.hash(user_in.password),
-        is_active=True,
-    )
-
-    db.add(new_user)
-    await db.commit()
-    await db.refresh(new_user)
-
-    return new_user
+    try:
+        repo = UserRepositoryImpl(db)
+        return await CreateUserUseCase(repo).execute(user_in)
+    except UserAlreadyExistsError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 
 @router.post("/login", response_model=Token)
-async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(User).where(User.username == form_data.username))
-    user: User | None = result.scalar_one_or_none()
-
-    if not user or not pwd_context.verify(form_data.password, user.password_hash):  # type: ignore[arg-type]
+async def login(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: AsyncSession = Depends(get_db),
+    redis: Redis = Depends(get_redis),
+):
+    try:
+        repo = UserRepositoryImpl(db)
+        token = await AuthenticateUserUseCase(repo).execute(form_data.username, form_data.password)
+        ttl = REFRESH_TOKEN_EXPIRE_DAYS * 86400
+        await redis.set(f"refresh:{form_data.username}:{token.refresh_token[-16:]}", "valid", ex=ttl)
+        return token
+    except InvalidCredentialsError as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Username ou senha incorretos",
+            detail=str(e),
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    access_token = create_access_token(data={"sub": user.username})
-    return {"access_token": access_token, "token_type": "bearer"}
+
+@router.post("/refresh", response_model=Token)
+async def refresh_token(
+    token: str = Body(..., embed=True),
+    db: AsyncSession = Depends(get_db),
+    redis: Redis = Depends(get_redis),
+):
+    username = decode_refresh_token(token)
+    if not username:
+        raise HTTPException(status_code=401, detail="Refresh token inválido ou expirado")
+
+    key = f"refresh:{username}:{token[-16:]}"
+    if not await redis.get(key):
+        raise HTTPException(status_code=401, detail="Refresh token revogado")
+
+    repo = UserRepositoryImpl(db)
+    user = await repo.get_by_username(username)
+    if not user:
+        raise HTTPException(status_code=401, detail="Usuário não encontrado")
+
+    from src.infrastructure.config.auth import create_refresh_token
+
+    new_access = create_access_token(data={"sub": username})
+    new_refresh = create_refresh_token(data={"sub": username})
+
+    await redis.delete(key)
+    ttl = REFRESH_TOKEN_EXPIRE_DAYS * 86400
+    await redis.set(f"refresh:{username}:{new_refresh[-16:]}", "valid", ex=ttl)
+
+    return Token(access_token=new_access, refresh_token=new_refresh)
+
+
+@router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
+async def logout(
+    token: str = Body(..., embed=True),
+    redis: Redis = Depends(get_redis),
+):
+    username = decode_refresh_token(token)
+    if username:
+        await redis.delete(f"refresh:{username}:{token[-16:]}")
