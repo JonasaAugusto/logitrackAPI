@@ -1,8 +1,10 @@
+import json
 import secrets
 import string
-from typing import List
+from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, BackgroundTasks, Depends, Header, HTTPException, status
+from redis.asyncio import Redis
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -14,11 +16,15 @@ from src.application.dtos.delivery_dto import (
     VehicleCreateDTO,
     VehicleResponseDTO,
 )
+from src.infrastructure.api.background.webhook import dispatch_delivery_webhook
+from src.infrastructure.cache import get_redis
 from src.infrastructure.config.auth import TokenData, get_current_user
 from src.infrastructure.persistence.database.connection import get_db
 from src.infrastructure.persistence.models.delivery import Delivery
 from src.infrastructure.persistence.models.tracking_event import TrackingEvent
 from src.infrastructure.persistence.models.vehicle import Vehicle
+
+IDEMPOTENCY_TTL = 86400
 
 router = APIRouter(tags=["Deliveries"])
 
@@ -78,9 +84,17 @@ async def get_vehicle(
 @router.post("/deliveries/", response_model=DeliveryResponseDTO, status_code=status.HTTP_201_CREATED)
 async def create_delivery(
     delivery_in: DeliveryCreateDTO,
+    background_tasks: BackgroundTasks,
     current_user: TokenData = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
+    redis: Redis = Depends(get_redis),
+    idempotency_key: Optional[str] = Header(None, alias="X-Idempotency-Key"),
 ):
+    if idempotency_key:
+        cached = await redis.get(f"idempotency:{idempotency_key}")
+        if cached:
+            return json.loads(cached)
+
     if delivery_in.vehicle_id:
         result = await db.execute(select(Vehicle).where(Vehicle.id == delivery_in.vehicle_id))
         if not result.scalar_one_or_none():
@@ -97,7 +111,16 @@ async def create_delivery(
     await db.refresh(delivery)
 
     result = await db.execute(select(Delivery).where(Delivery.id == delivery.id).options(selectinload(Delivery.events)))
-    return result.scalar_one()
+    delivery_out = result.scalar_one()
+
+    dto = DeliveryResponseDTO.model_validate(delivery_out)
+
+    if idempotency_key:
+        await redis.set(f"idempotency:{idempotency_key}", dto.model_dump_json(), ex=IDEMPOTENCY_TTL)
+
+    background_tasks.add_task(dispatch_delivery_webhook, tracking_code, "pending")
+
+    return dto
 
 
 @router.get("/deliveries/", response_model=List[DeliveryResponseDTO])
