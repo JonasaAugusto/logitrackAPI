@@ -4,6 +4,22 @@ API REST de rastreamento logístico construída com **FastAPI**, seguindo os pri
 
 ---
 
+## 🚀 Deploy em Produção
+
+> API disponível publicamente via Render.
+
+| | URL |
+|---|---|
+| **Base** | `https://logitrackapi.onrender.com` |
+| **Swagger UI** | [https://logitrackapi.onrender.com/docs](https://logitrackapi.onrender.com/docs) |
+| **ReDoc** | [https://logitrackapi.onrender.com/redocs](https://logitrackapi.onrender.com/redocs) |
+| **Health** | [https://logitrackapi.onrender.com/health](https://logitrackapi.onrender.com/health) |
+| **Metrics** | [https://logitrackapi.onrender.com/metrics](https://logitrackapi.onrender.com/metrics) |
+
+> ⚠️ O serviço usa o plano gratuito do Render — pode levar alguns segundos para "acordar" após inatividade.
+
+---
+
 ## Stack
 
 | Camada | Tecnologia |
@@ -103,8 +119,13 @@ docker compose exec api alembic upgrade head
 
 ### 3. Acessar a documentação
 
+**Local:**
 - Swagger UI: http://localhost:8000/docs
 - ReDoc: http://localhost:8000/redocs
+
+**Produção:**
+- Swagger UI: https://logitrackapi.onrender.com/docs
+- ReDoc: https://logitrackapi.onrender.com/redocs
 
 ---
 
