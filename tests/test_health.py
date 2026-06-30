@@ -1,38 +1,13 @@
-from unittest.mock import AsyncMock
-
 import pytest
-from httpx import ASGITransport, AsyncClient
-
-from infrastructure.api.main import app
-from infrastructure.cache import get_redis
-from infrastructure.persistence.database.connection import get_db
+from httpx import AsyncClient
 
 
 @pytest.mark.asyncio
-async def test_health_check_success():
-    """
-    Testa o endpoint /health usando mocks para Database e Redis.
-    Isso evita a necessidade de containers ou serviços externos.
-    """
-
-    mock_db = AsyncMock()
-
-    mock_redis = AsyncMock()
-    mock_redis.ping.return_value = True
-
-    app.dependency_overrides[get_db] = lambda: mock_db
-    app.dependency_overrides[get_redis] = lambda: mock_redis
-
-    try:
-        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
-            response = await ac.get("/health")
-
-        assert response.status_code == 200
-
-        assert response.json() == {
-            "status": "ok",
-            "database": "connected",
-            "redis": "connected",
-        }
-    finally:
-        app.dependency_overrides = {}
+async def test_health_check_success(client: AsyncClient):
+    response = await client.get("/health")
+    assert response.status_code == 200
+    assert response.json() == {
+        "status": "ok",
+        "database": "connected",
+        "redis": "connected",
+    }
