@@ -72,3 +72,33 @@ async def test_login_wrong_credentials(client: AsyncClient, mock_db_session):
     )
 
     assert resp.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_login_success(client: AsyncClient, mock_db_session, mock_user_factory):
+    from src.infrastructure.config.auth import hash_password
+
+    hashed = hash_password("senha123")
+    mock_user = mock_user_factory(username="testuser", email="test@logitrack.com")
+    mock_user.password_hash = hashed
+    mock_db_session._scalar_return_value = mock_user
+
+    resp = await client.post(
+        "/auth/login",
+        data={"username": "testuser", "password": "senha123"},
+    )
+
+    assert resp.status_code == 200
+    data = resp.json()
+    assert "access_token" in data
+    assert "refresh_token" in data
+    assert data["token_type"] == "bearer"
+
+
+@pytest.mark.asyncio
+async def test_logout_success(client: AsyncClient):
+    from src.infrastructure.config.auth import create_refresh_token
+
+    token = create_refresh_token(data={"sub": "testuser"})
+    resp = await client.post("/auth/logout", json={"token": token})
+    assert resp.status_code == 204
