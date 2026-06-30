@@ -1,7 +1,6 @@
 import os
 from typing import List, Optional
 
-from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -15,14 +14,7 @@ class Settings(BaseSettings):
     EXTERNAL_API_HOST: Optional[str] = None
     EXTERNAL_API_BASE_URL: Optional[str] = None
     JWT_SECRET_KEY: str = "test-secret-key-for-unit-tests"
-    ALLOWED_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:5173"]
-
-    @field_validator("ALLOWED_ORIGINS", mode="before")
-    @classmethod
-    def parse_origins(cls, v: object) -> object:
-        if isinstance(v, str):
-            return [o.strip() for o in v.split(",")]
-        return v
+    ALLOWED_ORIGINS: str = "http://localhost:3000,http://localhost:5173"
 
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -30,6 +22,10 @@ class Settings(BaseSettings):
         extra="ignore",
         case_sensitive=False,
     )
+
+    @property
+    def allowed_origins_list(self) -> List[str]:
+        return [o.strip() for o in self.ALLOWED_ORIGINS.split(",")]
 
     @property
     def is_test_mode(self) -> bool:
